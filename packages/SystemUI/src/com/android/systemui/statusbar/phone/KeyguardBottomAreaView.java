@@ -18,14 +18,10 @@ package com.android.systemui.statusbar.phone;
 
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
-import android.content.ContentResolver;
-import android.content.ContentResolver;
 import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.graphics.PorterDuff.Mode;
-import android.provider.Settings;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -212,10 +208,11 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
         super(context, attrs, defStyleAttr, defStyleRes);
         mLinearOutSlowInInterpolator =
                 AnimationUtils.loadInterpolator(context, android.R.interpolator.linear_out_slow_in);
-		ColorMatrix cm = new ColorMatrix();
-		cm.setSaturation(0);
-		mGrayScaleFilter = new ColorMatrixColorFilter(cm);
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        mGrayScaleFilter = new ColorMatrixColorFilter(cm);
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
         mWindowLayoutParams = new WindowManager.LayoutParams();
         mWindowLayoutParams.type = WindowManager.LayoutParams.TYPE_STATUS_BAR_PANEL;
         mWindowLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
@@ -279,35 +276,31 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-		mLockPatternUtils = new LockPatternUtils(mContext);
-		mPreviewContainer = (ViewGroup) findViewById(R.id.preview_container);
-		mCameraImageView = (KeyguardAffordanceView) findViewById(R.id.camera_button);
-		mLeftAffordanceView = (KeyguardAffordanceView) findViewById(R.id.left_button);
-		mLockIcon = (LockIcon) findViewById(R.id.lock_icon);
-		mIndicationText = (TextView) findViewById(R.id.keyguard_indication_text);
-		mShortcutHelper = new LockscreenShortcutsHelper(mContext, this);
-		watchForCameraPolicyChanges();
-		updateCameraVisibility();
-		updateLeftButtonVisibility();
-		mUnlockMethodCache = UnlockMethodCache.getInstance(getContext());
-		mUnlockMethodCache.addListener(this);
-		mLockIcon.update();
-		setClipChildren(false);
-		setClipToPadding(false);
-		mPreviewInflater = new PreviewInflater(mContext, new LockPatternUtils(mContext));
-		mLockIcon.setOnClickListener(this);
-		mLockIcon.setOnLongClickListener(this);
-		mCameraImageView.setOnClickListener(this);
-		mLeftAffordanceView.setOnClickListener(this);
-		initAccessibility();
-		updateCustomShortcuts();
+        mLockPatternUtils = new LockPatternUtils(mContext);
+        mPreviewContainer = (ViewGroup) findViewById(R.id.preview_container);
+        mCameraImageView = (KeyguardAffordanceView) findViewById(R.id.camera_button);
+        mLeftAffordanceView = (KeyguardAffordanceView) findViewById(R.id.left_button);
+        mLockIcon = (LockIcon) findViewById(R.id.lock_icon);
+        mIndicationText = (TextView) findViewById(R.id.keyguard_indication_text);
+        mShortcutHelper = new LockscreenShortcutsHelper(mContext, this);
+        watchForCameraPolicyChanges();
+        updateCameraVisibility();
+        updateLeftButtonVisibility();
+        mUnlockMethodCache = UnlockMethodCache.getInstance(getContext());
+        mUnlockMethodCache.addListener(this);
+        mLockIcon.update();
+        setClipChildren(false);
+        setClipToPadding(false);
+        mPreviewInflater = new PreviewInflater(mContext, new LockPatternUtils(mContext));
+        mLockIcon.setOnClickListener(this);
+        mLockIcon.setOnLongClickListener(this);
+        mCameraImageView.setOnClickListener(this);
+        mLeftAffordanceView.setOnClickListener(this);
+        initAccessibility();
+        updateCustomShortcuts();
     }
 
     private void updateCustomShortcuts() {
-    	updateCameraIconColor();
-        updatePhoneIconColor();
-        updateLockIconColor();
-        updateIndicationTextColor();
         updateLeftAffordanceIcon();
         updateRightAffordanceIcon();
         inflateCameraPreview();
@@ -333,22 +326,14 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
     }
 
     private void initAccessibility() {
-    	updateCameraIconColor();
-	updatePhoneIconColor();
-	updateLockIconColor();
-	updateIndicationTextColor();
-	mLockIcon.setAccessibilityDelegate(mAccessibilityDelegate);
-	mLeftAffordanceView.setAccessibilityDelegate(mAccessibilityDelegate);
-	mCameraImageView.setAccessibilityDelegate(mAccessibilityDelegate);
+        mLockIcon.setAccessibilityDelegate(mAccessibilityDelegate);
+        mLeftAffordanceView.setAccessibilityDelegate(mAccessibilityDelegate);
+        mCameraImageView.setAccessibilityDelegate(mAccessibilityDelegate);
     }
 
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        updateCameraIconColor();
-        updatePhoneIconColor();
-        updateLockIconColor();
-        updateIndicationTextColor();
         int indicationBottomMargin = getResources().getDimensionPixelSize(
                 R.dimen.keyguard_indication_margin_bottom);
         MarginLayoutParams mlp = (MarginLayoutParams) mIndicationText.getLayoutParams();
@@ -364,7 +349,7 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
     }
 
     public void setActivityStarter(ActivityStarter activityStarter) {
-			mActivityStarter = activityStarter;
+        mActivityStarter = activityStarter;
     }
 
     public void setFlashlightController(FlashlightController flashlightController) {
@@ -372,10 +357,6 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
     }
 
     public void setAccessibilityController(AccessibilityController accessibilityController) {
-        updateCameraIconColor();
-        updatePhoneIconColor();
-        updateLockIconColor();
-        updateIndicationTextColor();
         mAccessibilityController = accessibilityController;
         mLockIcon.setAccessibilityController(accessibilityController);
         accessibilityController.addStateChangedCallback(this);
@@ -383,10 +364,6 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
 
     public void setPhoneStatusBar(PhoneStatusBar phoneStatusBar) {
         mPhoneStatusBar = phoneStatusBar;
-        updateCameraIconColor();
-        updatePhoneIconColor();
-        updateLockIconColor();
-        updateIndicationTextColor();
         updateCameraVisibility(); // in case onFinishInflate() was called too early
         updateLeftButtonVisibility();
     }
@@ -403,7 +380,7 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
         boolean canSkipBouncer = updateMonitor.getUserCanSkipBouncer(
                 KeyguardUpdateMonitor.getCurrentUser());
         boolean secure = mLockPatternUtils.isSecure(KeyguardUpdateMonitor.getCurrentUser());
-	return (secure && !canSkipBouncer) ? SECURE_CAMERA_INTENT : INSECURE_CAMERA_INTENT;
+        return (secure && !canSkipBouncer) ? SECURE_CAMERA_INTENT : INSECURE_CAMERA_INTENT;
     }
 
     /**
@@ -479,7 +456,7 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
 
     private boolean isPhoneVisible() {
         PackageManager pm = mContext.getPackageManager();
-	return pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)
+        return pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)
                 && pm.resolveActivity(PHONE_INTENT, 0) != null;
     }
 
@@ -508,7 +485,7 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
         getContext().registerReceiverAsUser(mDevicePolicyReceiver,
                 UserHandle.ALL, filter, null, null);
         KeyguardUpdateMonitor.getInstance(mContext).registerCallback(mUpdateMonitorCallback);
-  }
+    }
 
     @Override
     public void onStateChanged(boolean accessibilityEnabled, boolean touchExplorationEnabled) {
@@ -516,10 +493,6 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
         mLeftAffordanceView.setClickable(touchExplorationEnabled);
         mCameraImageView.setFocusable(accessibilityEnabled);
         mLeftAffordanceView.setFocusable(accessibilityEnabled);
-        updateCameraIconColor();
-        updatePhoneIconColor();
-        updateLockIconColor();
-        updateIndicationTextColor();
         mLockIcon.update();
     }
 
@@ -636,13 +609,12 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
             // We need to delay starting the activity because ResolverActivity finishes itself if
             // launched behind lockscreen.
             mActivityStarter.startActivity(intent, false /* dismissShade */,
-	        new ActivityStarter.Callback() {
+                    new ActivityStarter.Callback() {
                         @Override
                         public void onActivityStarted(int resultCode) {
                             unbindCameraPrewarmService(isSuccessfulLaunch(resultCode));
                         }
                     });
-                
         }
     }
 
@@ -705,13 +677,9 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
     protected void onVisibilityChanged(View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
         if (changedView == this && visibility == VISIBLE) {
-        		updateCameraIconColor();
-			updatePhoneIconColor();
-			updateLockIconColor();
-			updateIndicationTextColor();
-			mLockIcon.update();
-			updateCameraVisibility();
-			updateLeftButtonVisibility();
+            mLockIcon.update();
+            updateCameraVisibility();
+            updateLeftButtonVisibility();
         }
     }
 
@@ -732,10 +700,6 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
     }
 
     public LockIcon getLockIcon() {
-	updateCameraIconColor();
-        updatePhoneIconColor();
-        updateLockIconColor();
-        updateIndicationTextColor();
         return mLockIcon;
     }
 
@@ -762,7 +726,7 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
             mCameraPreview = mPreviewInflater.inflatePreview(getCameraIntent());
             if (mCameraPreview != null) {
                 mPreviewContainer.addView(mCameraPreview);
-                 mCameraPreview.setVisibility(View.GONE);
+                mCameraPreview.setVisibility(View.GONE);
             }
         }
     }
@@ -804,10 +768,6 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
                 .alpha(1f)
                 .setInterpolator(mLinearOutSlowInInterpolator)
                 .setDuration(NotificationPanelView.DOZE_ANIMATION_DURATION);
-			updateCameraIconColor();
-			updatePhoneIconColor();
-			updateLockIconColor();
-			updateIndicationTextColor();
     }
 
     private void startFinishDozeAnimationElement(View element, long delay) {
@@ -819,10 +779,6 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
                 .setInterpolator(mLinearOutSlowInInterpolator)
                 .setStartDelay(delay)
                 .setDuration(DOZE_ANIMATION_ELEMENT_DURATION);
-		updateCameraIconColor();
-		updatePhoneIconColor();
-		updateLockIconColor();
-		updateIndicationTextColor();
     }
 
     private final class DevicePolicyBroadcastReceiver extends BroadcastReceiver {
@@ -831,8 +787,8 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
             post(new Runnable() {
                 @Override
                 public void run() {
-					updateCameraVisibility();
-					updateLeftButtonVisibility();
+                    updateCameraVisibility();
+                    updateLeftButtonVisibility();
                 }
             });
         }
@@ -843,10 +799,6 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
         @Override
         public void onUserSwitchComplete(int userId) {
             updateCameraVisibility();
-	    updateCameraIconColor();
-            updatePhoneIconColor();
-            updateLockIconColor();
-            updateIndicationTextColor();
             updateLeftButtonVisibility();
         }
 
@@ -872,11 +824,7 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
 
         @Override
         public void onKeyguardVisibilityChanged(boolean showing) {
-        updateCameraIconColor();
-        updatePhoneIconColor();
-        updateLockIconColor();
-        updateIndicationTextColor();
-        mLockIcon.update();
+            mLockIcon.update();
         }
 
         @Override
@@ -892,10 +840,6 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
 
     public void setKeyguardIndicationController(
             KeyguardIndicationController keyguardIndicationController) {
-            updateCameraIconColor();
-            updatePhoneIconColor();
-            updateLockIconColor();
-            updateIndicationTextColor();
         mIndicationController = keyguardIndicationController;
     }
 
@@ -930,10 +874,6 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
 
     public String getLeftHint() {
         String label = getIndexHint(LockscreenShortcutsHelper.Shortcuts.LEFT_SHORTCUT);
-	updateCameraIconColor();
-        updatePhoneIconColor();
-        updateLockIconColor();
-        updateIndicationTextColor();
         if (label == null) {
             if (isLeftVoiceAssist()) {
                 label = mContext.getString(R.string.voice_hint);
@@ -956,56 +896,10 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
         return mShortcutHelper.isTargetCustom(shortcut);
     }
 
-    private void updateCameraIconColor() {
-        ContentResolver resolver = getContext().getContentResolver();
-        int color = Settings.System.getInt(resolver,
-                Settings.System.LOCKSCREEN_CAMERA_ICON_COLOR, 0x99FFFFFF);
-
-        if (mCameraImageView != null) {
-            mCameraImageView.setColorFilter(color);
-        }
-    }
-
-    private void updatePhoneIconColor() {
-        ContentResolver resolver = getContext().getContentResolver();
-        int color = Settings.System.getInt(resolver,
-                Settings.System.LOCKSCREEN_PHONE_ICON_COLOR, 0x99FFFFFF);
-
-        if (mLeftAffordanceView != null) {
-            mLeftAffordanceView.setColorFilter(color);
-        }
-    }
-
-    private void updateLockIconColor() {
-        ContentResolver resolver = getContext().getContentResolver();
-        int color = Settings.System.getInt(resolver,
-                Settings.System.LOCKSCREEN_LOCK_ICON_COLOR, 0xFFFFFFFF);
-
-        if (mLockIcon != null) {
-            mLockIcon.setColorFilter(color);
-        }
-    }
-
-    private void updateIndicationTextColor() {
-        ContentResolver resolver = getContext().getContentResolver();
-        int color = Settings.System.getInt(resolver,
-                Settings.System.LOCKSCREEN_INDICATION_TEXT_COLOR, 0xFFFFFFFF);
-
-        if (mIndicationText != null) {
-            mIndicationText.setTextColor(color);
-        }
-    }
-
-
     @Override
     public void onChange() {
-	updateCameraIconColor();
-        updatePhoneIconColor();
-        updateLockIconColor();
-        updateIndicationTextColor();
         updateCustomShortcuts();
-        }
-
+    }
 
     @Override
     protected void onAttachedToWindow() {

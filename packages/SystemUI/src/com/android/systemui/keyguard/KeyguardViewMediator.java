@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.UserInfo;
+import android.graphics.Bitmap;
 import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.media.SoundPool;
