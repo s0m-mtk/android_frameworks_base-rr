@@ -5937,10 +5937,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
     public void onScreenTurningOn() {
         mScreenTurningOn = true;
-        mDeviceInteractive = true;
-        mStackScroller.setAnimationsEnabled(true);
-        mNotificationPanel.setTouchDisabled(false);
-        updateVisibleToUser();
         mNotificationPanel.onScreenTurningOn();
         if (mLaunchCameraOnScreenTurningOn) {
             mNotificationPanel.launchCamera(false, mLastCameraLaunchSource);
