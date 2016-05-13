@@ -32,7 +32,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.UserInfo;
-import android.graphics.Bitmap;
 import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -62,6 +61,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.android.systemui.cm.UserContentObserver;
+import com.android.systemui.qs.tiles.LockscreenToggleTile;
 import cyanogenmod.app.Profile;
 import cyanogenmod.app.ProfileManager;
 
@@ -699,9 +699,14 @@ public class KeyguardViewMediator extends SystemUI {
                         CMSettings.Secure.LOCKSCREEN_INTERNALLY_ENABLED,
                         getPersistedDefaultOldSetting() ? 1 : 0,
                         UserHandle.USER_CURRENT) == 0;
-                if (newDisabledState != mInternallyDisabled && mKeyguardBound) {
-                    // it was updated,
-                    setKeyguardEnabledInternal(!newDisabledState);
+
+                synchronized (KeyguardViewMediator.this) {
+                    if (mKeyguardBound) {
+                        if (newDisabledState != mInternallyDisabled) {
+                            // it was updated,
+                            setKeyguardEnabledInternal(!newDisabledState);
+                        }
+                    }
                 }
             }
         };
@@ -1965,9 +1970,5 @@ public class KeyguardViewMediator extends SystemUI {
                 Slog.w(TAG, "Failed to call onShowingStateChanged or onSimSecureStateChanged or onInputRestrictedStateChanged", e);
             }
         }
-    }
-
-    public void setBackgroundBitmap(Bitmap bmp) {
-        mStatusBarKeyguardViewManager.setBackgroundBitmap(bmp);
     }
 }
