@@ -129,6 +129,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.statusbar.NotificationVisibility;
 import com.android.internal.statusbar.IStatusBarService;
@@ -764,6 +765,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 	resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NAVBAR_BUTTON_COLOR),
                     false, this, UserHandle.USER_ALL);
+        resolver.registerContentObserver(Settings.Secure.getUriFor(
+                    Settings.Secure.FLING_PULSE_ENABLED),
+                    false, this, UserHandle.USER_ALL);
 		    update();
         }
 
@@ -880,7 +884,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 		} else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.NAVBAR_BUTTON_COLOR))) {
 		    mNavigationController.updateNavbarOverlay(getNavbarThemedResources());
-		} 
+		}  else if (uri.equals(Settings.Secure.getUriFor(
+                    Settings.Secure.FLING_PULSE_ENABLED))) {
+		    makepulsetoast();
+		}
          update();
         }
 
@@ -3053,6 +3060,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (mKeyguardStatusBar != null) {
             mKeyguardStatusBar.updateNetworkIconColors();
         }
+    }
+    
+    public void makepulsetoast() {
+    Toast.makeText(mContext,
+                        R.string.pulse_toast_message, Toast.LENGTH_SHORT).show();   
     }
 
     private void updateNoSimColor() {
@@ -5671,6 +5683,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
     public void showBouncer() {
         if (!mRecreating && mNotificationPanel.mCanDismissKeyguard) {
+            // ensure external keyguard view does not have focus
+            unfocusKeyguardExternalView();
             mWaitingForKeyguardExit = mStatusBarKeyguardViewManager.isShowing();
             mStatusBarKeyguardViewManager.dismiss();
         }
@@ -5686,7 +5700,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     }
 
     protected void unfocusKeyguardExternalView() {
-        setBarState(StatusBarState.KEYGUARD);
         mStatusBarKeyguardViewManager.setKeyguardExternalViewFocus(false);
     }
 
@@ -5775,7 +5788,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     }
 
     public void onTrackingStopped(boolean expand) {
-        if (mState == StatusBarState.KEYGUARD || mState == StatusBarState.SHADE_LOCKED || mStatusBarWindowManager.keyguardExternalViewHasFocus()) {
+        if (mState == StatusBarState.KEYGUARD || mState == StatusBarState.SHADE_LOCKED ||
+                mLiveLockScreenController.getLiveLockScreenHasFocus()) {
             if (!expand && (!mUnlockMethodCache.canSkipBouncer() ||
                     mLiveLockScreenController.isShowingLiveLockScreenView())) {
                 showBouncer();
