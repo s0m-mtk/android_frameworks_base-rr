@@ -8611,6 +8611,13 @@ public final class Settings {
         public static final String FLING_PULSE_LAVALAMP_SPEED = "fling_pulse_lavalamp_speed";
 
         /**
+         * Pulse renderer implementation
+         *
+         * @hide
+         */
+        public static final String PULSE_RENDER_STYLE_URI = "pulse_render_style";
+
+        /**
          * time it takes to execute Fling long press action
          *
          * @hide
@@ -8695,6 +8702,17 @@ public final class Settings {
          */
         public static final String PULSE_CUSTOM_FUDGE_FACTOR = "pulse_custom_fudge_factor";
         
+         /**
+         * Pulse Fudge Factor
+         * @hide
+         */
+        public static final String PULSE_SOLID_FUDGE_FACTOR = "pulse_solid_fudge_factor";
+        
+         /**
+         * Pulse Lavamp Animation Speed
+         * @hide
+         */
+        public static final String LAVAMP_SOLID_SPEED = "lavamp_solid_speed";
 
         /**
          * This are the settings to be backed up.
