@@ -210,6 +210,8 @@ import com.android.systemui.statusbar.policy.KeyguardUserSwitcher;
 import com.android.systemui.statusbar.policy.LiveLockScreenController;
 import com.android.systemui.statusbar.policy.LocationControllerImpl;
 import com.android.systemui.statusbar.policy.NetworkController;
+import com.android.systemui.statusbar.policy.MinitBattery;
+import com.android.systemui.statusbar.policy.MinitBatteryController;
 import com.android.systemui.statusbar.policy.NetworkControllerImpl;
 import com.android.systemui.statusbar.policy.NextAlarmController;
 import com.android.systemui.statusbar.policy.PreviewInflater;
@@ -382,6 +384,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     SuControllerImpl mSuController;
     FingerprintUnlockController mFingerprintUnlockController;
     LiveLockScreenController mLiveLockScreenController;
+    MinitBatteryController mMinitBatteryController;
 
     int mNaturalBarHeight = -1;
 
@@ -760,18 +763,21 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System. SHOW_DARK_ICONS),
                     false, this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
+        resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_CUSTOM_HEADER_TEXT_SHADOW), false, this,
                     UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
+        resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_CUSTOM_HEADER_TEXT_SHADOW_COLOR), false, this,
                     UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
+        resolver.registerContentObserver(Settings.System.getUriFor(
 		    Settings.System.QS_STROKE), false, this,
 		    UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
+        resolver.registerContentObserver(Settings.System.getUriFor(
 		    Settings.System.STATUSBAR_CLOCK_COLOR_SWITCH), false, this,
 		    UserHandle.USER_ALL);
+        resolver.registerContentObserver(Settings.Secure.getUriFor(
+                    Settings.Secure.NAVBAR_BUTTONS_ALPHA),
+                    false, this, UserHandle.USER_ALL);
             update();
         }
 
@@ -901,14 +907,17 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     if (mQSStroke == 0) {
                     DontStressOnRecreate();
                     }
-            } else if (uri.equals(Settings.System.getUriFor(
+               } else if (uri.equals(Settings.System.getUriFor(
                     Settings.System.STATUSBAR_CLOCK_COLOR_SWITCH))) {
                     int mClockColorSwitch = Settings.System.getIntForUser(
                             mContext.getContentResolver(),
                             Settings.System.STATUSBAR_CLOCK_COLOR_SWITCH, 0,
                             UserHandle.USER_CURRENT);
                    DontStressOnRecreate();
-            }
+	      } else if (uri.equals(Settings.Secure.getUriFor(
+                    Settings.Secure.NAVBAR_BUTTONS_ALPHA))) {
+		   mNavigationController.updateNavbarOverlay(getNavbarThemedResources());
+           }
          update();
 	}
 
@@ -1751,6 +1760,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         // set the inital view visibility
         setAreThereNotifications();
+
+        mMinitBatteryController = new MinitBatteryController(mContext, mStatusBarView, mHeader, mKeyguardStatusBar);
+        mPackageMonitor.addListener(mMinitBatteryController);
 
         mIconController = new StatusBarIconController(
                 mContext, mStatusBarView, mKeyguardStatusBar, this);     
@@ -4566,7 +4578,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             mCLogo.setVisibility(View.GONE);
             return;
         }
+	if (color != 0xFFFFFFFF) {
 		mCLogo.setColorFilter(color, Mode.MULTIPLY);
+	} else {
+		mCLogo.clearColorFilter();
+	}
 		if ( style == 0) {
 		mCLogo.setVisibility(View.GONE);
 		mCLogo = (ImageView) mStatusBarView.findViewById(R.id.custom);
@@ -4696,6 +4712,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 		} else if ( style == 42) {
 		mCLogo.setVisibility(View.GONE);
 		mCLogo = (ImageView) mStatusBarView.findViewById(R.id.custom_42);
+		} else if ( style == 43) {
+		mCLogo.setVisibility(View.GONE);
+		mCLogo = (ImageView) mStatusBarView.findViewById(R.id.custom_43);
 		}
 		mCLogo.setVisibility(View.VISIBLE);
 
@@ -5304,6 +5323,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mContext.unregisterReceiver(mDemoReceiver);
         mContext.unregisterReceiver(mDUReceiver);
         mPackageMonitor.removeListener(mNavigationController);
+        mPackageMonitor.removeListener(mMinitBatteryController);
         mPackageMonitor.unregister();
         mNavigationController.destroy();
         mAssistManager.destroy();
